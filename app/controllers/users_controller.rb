@@ -65,13 +65,15 @@ class UsersController < ApplicationController
     end
   end
 
+
   def create_memcached_instance
-    docker_path = '/home/julien/docker-master/'
-    container_id = `#{docker_path}docker run -d -p 11211 jbarbier/memcached memcached -u daemon`
+    docker_path = '/usr/bin/'
+    container_id = `#{docker_path}docker run -d -p 11211 sai/memcached memcached -u daemon`
     cmd = "#{docker_path}docker inspect #{container_id}"
     json_infos = `#{cmd}`
-    i = JSON.parse(json_infos)
-    @user.memcached = i["NetworkSettings"]["PortMapping"]["11211"]
+    i = JSON.parse(json_infos)[0]
+    mp = i["NetworkSettings"]["PortMapping"]["Tcp"]["11211"]
+    @user.memcached = mp.to_i()
     @user.container_id = container_id
     @user.docker_ip = i["NetworkSettings"]["IpAddress"]
   end
